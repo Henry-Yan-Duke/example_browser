@@ -25,20 +25,19 @@ import org.controlsfx.dialog.Dialogs;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
-
 
 /**
  * A class used to display the viewer for a simple HTML browser.
  * 
  * See this tutorial for help on how to use the variety of components:
- *   http://download.oracle.com/otndocs/products/javafx/2/samples/Ensemble/
+ * http://download.oracle.com/otndocs/products/javafx/2/samples/Ensemble/
  * 
  * @author Owen Astrachan
  * @author Marcin Dobosz
  * @author Yuzhang Han
+ * @author Edwin Ward
  * @author Robert C. Duvall
  */
 public class BrowserView {
@@ -65,7 +64,6 @@ public class BrowserView {
     private ResourceBundle myResources;
     // the data
     private BrowserModel myModel;
-
 
     /**
      * Create a view of the given model of a web browser.
@@ -96,8 +94,7 @@ public class BrowserView {
                 myModel.go(valid);
                 update(valid);
             }
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             showError("Could not load " + url);
         }
     }
@@ -120,10 +117,7 @@ public class BrowserView {
      * Display given message as an error in the GUI.
      */
     public void showError (String message) {
-        Dialogs.create()
-          .title(myResources.getString("ErrorTitle"))
-          .message(message)
-          .showError();
+        Dialogs.create().title(myResources.getString("ErrorTitle")).message(message).showError();
     }
 
     // move to the next URL in the history
@@ -156,9 +150,8 @@ public class BrowserView {
     // prompt user for name of favorite to add to collection
     private void addFavorite () {
         Optional<String> response = Dialogs.create()
-          .title(myResources.getString("FavoritePromptTitle"))
-          .message(myResources.getString("FavoritePrompt"))
-          .showTextInput("");
+                .title(myResources.getString("FavoritePromptTitle"))
+                .message(myResources.getString("FavoritePrompt")).showTextInput("");
         // did user make a choice?
         if (response.isPresent()) {
             myModel.addFavorite(response.get());
@@ -193,8 +186,7 @@ public class BrowserView {
     // organize user's options for controlling/giving input to model
     private Node makeInputPanel () {
         VBox result = new VBox();
-        result.getChildren().addAll(makeNavigationPanel(), 
-                                    makePreferencesPanel());
+        result.getChildren().addAll(makeNavigationPanel(), makePreferencesPanel());
         return result;
     }
 
@@ -209,37 +201,17 @@ public class BrowserView {
     private Node makeNavigationPanel () {
         HBox result = new HBox();
 
-        myBackButton = makeButton("BackCommand", new EventHandler<ActionEvent>() {
-            @Override
-            public void handle (ActionEvent event) {
-                back();
-            }
-        });
+        myBackButton = makeButton("BackCommand", event -> back());
         result.getChildren().add(myBackButton);
 
-        myNextButton = makeButton("NextCommand", new EventHandler<ActionEvent>() {
-            @Override
-            public void handle (ActionEvent event) {
-                next();
-            }
-        });
+        myNextButton = makeButton("NextCommand", event -> next());
         result.getChildren().add(myNextButton);
 
-        myHomeButton = makeButton("HomeCommand", new EventHandler<ActionEvent>() {
-            @Override
-            public void handle (ActionEvent event) {
-                home();
-            }
-        });
+        myHomeButton = makeButton("HomeCommand", event -> home());
         result.getChildren().add(myHomeButton);
 
         // if user presses button or enter in text field, load/show the URL
-        EventHandler<ActionEvent> showPage = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle (ActionEvent event) {
-                showPage(myURLDisplay.getText());
-            }
-        };
+        EventHandler<ActionEvent> showPage = event -> showPage(myURLDisplay.getText());
         result.getChildren().add(makeButton("GoCommand", showPage));
         myURLDisplay = makeInputField(50, showPage);
         result.getChildren().add(myURLDisplay);
@@ -251,29 +223,16 @@ public class BrowserView {
     private Node makePreferencesPanel () {
         HBox result = new HBox();
 
-        result.getChildren().add(makeButton("AddFavoriteCommand", new EventHandler<ActionEvent>() {
-            @Override
-            public void handle (ActionEvent event) {
-                addFavorite();
-            }
-        }));
+        result.getChildren().add(makeButton("AddFavoriteCommand", event -> addFavorite()));
 
         myFavorites = new ComboBox<String>();
         myFavorites.setPromptText(myResources.getString("FavoriteFirstItem"));
-        myFavorites.valueProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed (ObservableValue<? extends String> o, String s1, String s2) {
-                showFavorite(s2);
-            }
-        });
+        myFavorites.valueProperty().addListener( (o, s1, s2) -> showFavorite(s2));
         result.getChildren().add(myFavorites);
 
-        result.getChildren().add(makeButton("SetHomeCommand", new EventHandler<ActionEvent>() {
-            @Override
-            public void handle (ActionEvent event) {
-                myModel.setHome();
-                enableButtons();
-            }
+        result.getChildren().add(makeButton("SetHomeCommand", event -> {
+            myModel.setHome();
+            enableButtons();
         }));
 
         return result;
@@ -284,10 +243,9 @@ public class BrowserView {
         Button result = new Button();
         String label = myResources.getString(property);
         if (label.endsWith("gif")) {
-            result.setGraphic(new ImageView(new Image(
-                getClass().getResourceAsStream(DEFAULT_RESOURCE_PACKAGE + label))));
-        }
-        else {
+            result.setGraphic(new ImageView(
+                new Image(getClass().getResourceAsStream(DEFAULT_RESOURCE_PACKAGE + label))));
+        } else {
             result.setText(label);
         }
         result.setOnAction(handler);
@@ -302,43 +260,35 @@ public class BrowserView {
         return result;
     }
 
-
     /**
-     * Inner class to deal with link-clicks and mouse-overs
-     * Mostly taken from
-     *   http://blogs.kiyut.com/tonny/2013/07/30/javafx-webview-addhyperlinklistener/
+     * Inner class to deal with link-clicks and mouse-overs Mostly taken from
+     * http://blogs.kiyut.com/tonny/2013/07/30/javafx-webview-addhyperlinklistener/
      */
     private class LinkListener implements ChangeListener<State> {
         public static final String EVENT_CLICK = "click";
         public static final String EVENT_MOUSEOVER = "mouseover";
         public static final String EVENT_MOUSEOUT = "mouseout";
-     
+
         @Override
-        public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
+        public void changed (ObservableValue<? extends State> ov, State oldState, State newState) {
             if (newState == Worker.State.SUCCEEDED) {
-                EventListener listener = new EventListener() {
-                    @Override
-                    public void handleEvent(Event e) {
-                        final String href = ((Element)e.getTarget()).getAttribute("href");
-                        if (href != null) {
-                            String domEventType = e.getType();
-                            if (domEventType.equals(EVENT_CLICK)) {
-                                showPage(href);
-                            }
-                            else if (domEventType.equals(EVENT_MOUSEOVER)) {
-                                showStatus(href);
-                            }
-                            else if (domEventType.equals(EVENT_MOUSEOUT)) {
-                                showStatus(BLANK);
-                            }
+                EventListener listener = event -> {
+                    final String href = ((Element)event.getTarget()).getAttribute("href");
+                    if (href != null) {
+                        String domEventType = event.getType();
+                        if (domEventType.equals(EVENT_CLICK)) {
+                            showPage(href);
+                        } else if (domEventType.equals(EVENT_MOUSEOVER)) {
+                            showStatus(href);
+                        } else if (domEventType.equals(EVENT_MOUSEOUT)) {
+                            showStatus(BLANK);
                         }
                     }
                 };
- 
                 Document doc = myPage.getEngine().getDocument();
                 NodeList nodes = doc.getElementsByTagName("a");
                 for (int i = 0; i < nodes.getLength(); i++) {
-                    EventTarget node = (EventTarget)nodes.item(i);
+                    EventTarget node = (EventTarget) nodes.item(i);
                     node.addEventListener(EVENT_CLICK, listener, false);
                     node.addEventListener(EVENT_MOUSEOVER, listener, false);
                     node.addEventListener(EVENT_MOUSEOUT, listener, false);
