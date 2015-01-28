@@ -55,7 +55,10 @@ public class BrowserModel {
      * Changes current page to given URL, removing next history.
      */
     public void go (URL url) {
-        myHistory.add(url);
+        myHistory.handleURL(url);
+        myHome.handleURL(url);
+        myFavorites.handleURL(url);
+        System.out.println("Current URL: " + url);
     }
 
     /**
@@ -69,14 +72,14 @@ public class BrowserModel {
      * Sets current home page to the current URL being viewed.
      */
     public void setHome () {
-        myHome.setHome(myHistory.getCurrentURL());
+        myHome.setHome();
     }
 
     /**
      * Adds current URL being viewed to favorites collection with given name.
      */
     public void addFavorite (String name) {
-        myFavorites.add(name, myHistory.getCurrentURL());
+        myFavorites.add(name);
     }
 
     /**

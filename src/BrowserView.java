@@ -201,18 +201,18 @@ public class BrowserView {
     private Node makeNavigationPanel () {
         HBox result = new HBox();
 
-        myBackButton = makeButton("BackCommand", event -> back());
+        myBackButton = new BrowserButton(myResources.getString("BackCommand"), event -> back());
         result.getChildren().add(myBackButton);
 
-        myNextButton = makeButton("NextCommand", event -> next());
+        myNextButton = new BrowserButton(myResources.getString("NextCommand"), event -> next());
         result.getChildren().add(myNextButton);
 
-        myHomeButton = makeButton("HomeCommand", event -> home());
+        myHomeButton = new BrowserButton(myResources.getString("HomeCommand"), event -> home());
         result.getChildren().add(myHomeButton);
 
         // if user presses button or enter in text field, load/show the URL
         EventHandler<ActionEvent> showPage = event -> showPage(myURLDisplay.getText());
-        result.getChildren().add(makeButton("GoCommand", showPage));
+        result.getChildren().add(new BrowserButton(myResources.getString("GoCommand"), showPage));
         myURLDisplay = makeInputField(50, showPage);
         result.getChildren().add(myURLDisplay);
 
@@ -223,32 +223,20 @@ public class BrowserView {
     private Node makePreferencesPanel () {
         HBox result = new HBox();
 
-        result.getChildren().add(makeButton("AddFavoriteCommand", event -> addFavorite()));
+        result.getChildren().add(new BrowserButton(myResources.getString("AddFavoriteCommand"),
+                                                   event -> addFavorite()));
 
         myFavorites = new ComboBox<String>();
         myFavorites.setPromptText(myResources.getString("FavoriteFirstItem"));
         myFavorites.valueProperty().addListener( (o, s1, s2) -> showFavorite(s2));
         result.getChildren().add(myFavorites);
 
-        result.getChildren().add(makeButton("SetHomeCommand", event -> {
+        result.getChildren().add(new BrowserButton(myResources.getString("SetHomeCommand"), 
+                                                   event -> {
             myModel.setHome();
             enableButtons();
         }));
 
-        return result;
-    }
-
-    // makes a button using either an image or a label
-    private Button makeButton (String property, EventHandler<ActionEvent> handler) {
-        Button result = new Button();
-        String label = myResources.getString(property);
-        if (label.endsWith("gif")) {
-            result.setGraphic(new ImageView(
-                new Image(getClass().getResourceAsStream(DEFAULT_RESOURCE_PACKAGE + label))));
-        } else {
-            result.setText(label);
-        }
-        result.setOnAction(handler);
         return result;
     }
 

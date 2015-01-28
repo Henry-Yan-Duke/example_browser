@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class History {
+public class History implements Feature {
     private List<URL> myHistory;
     private int myCurrentIndex;
 
@@ -15,25 +15,23 @@ public class History {
     }
 
     /**
-     * Returns the URL currently being shown
+     * Wipes all "next" history and appends given URL as the last item in history.
      */
-    public URL getCurrentURL () {
-        return myHistory.get(myCurrentIndex);
-    }
-
-    /**
-     * Wipes all "next" history and appends the given URL as the last item in
-     * the history
-     * 
-     * @param url
-     *            the URL being visited / appended
-     */
-    public void add (URL url) {
+    @Override
+    public void handleURL (URL url) {
         if (hasNext()) {
             myHistory = myHistory.subList(0, myCurrentIndex + 1);
         }
         myHistory.add(url);
         myCurrentIndex++;
+        System.out.println("History size = " + myHistory.size());
+    }
+
+    /**
+     * Returns the URL currently being shown
+     */
+    public URL getCurrentURL () {
+        return myHistory.get(myCurrentIndex);
     }
 
     /**

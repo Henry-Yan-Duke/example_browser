@@ -3,11 +3,18 @@ package features;
 import java.net.URL;
 
 
-public class Home {
+public class Home implements Feature {
     private URL myHome;
+    private URL myCurrentURL;
 
     public Home () {
         myHome = null;
+        myCurrentURL = null;
+    }
+
+    @Override
+    public void handleURL (URL url) {
+        myCurrentURL = url;
     }
 
     /**
@@ -20,9 +27,9 @@ public class Home {
     /**
      * Sets current home page to the current URL being viewed.
      */
-    public void setHome (URL newHome) {
-        if (newHome != null) {
-            myHome = newHome;
+    public void setHome () {
+        if (myCurrentURL != null) {
+            myHome = myCurrentURL;
         }
     }
 }
